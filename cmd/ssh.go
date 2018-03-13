@@ -15,24 +15,21 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
+	"os/exec"
 
 	"github.com/spf13/cobra"
 )
 
+var email string
+
 // sshCmd represents the ssh command
 var sshCmd = &cobra.Command{
-	Use:   "ssh",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("ssh called")
-	},
+	Short: "Generate ssh keys",
+	Long:  "Generate ssh keys",
+	Use:   "ssh <new-keyfile-name>",
+	RunE:  ssh,
 }
 
 func init() {
@@ -46,5 +43,31 @@ func init() {
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// sshCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	sshCmd.Flags().StringVarP(&email, "email", "e", "", "email to associate with this ssh key")
+}
+
+func ssh(cmd *cobra.Command, args []string) error {
+	if len(args) != 1 {
+		return errors.New("must specify a name for output key files")
+	}
+
+	privateKeyFile := args[0]
+	publicKeyFile := privateKeyFile + ".pub"
+
+	fmt.Printf("Generating keys...\n")
+	publicKeyCmd := exec.Command("ssh-keygen",
+		"-t", "rsa",
+		"-b", "4096",
+		"-N", "",
+		"-C", email,
+		"-f", privateKeyFile,
+	)
+
+	_, err := publicKeyCmd.Output()
+	if err != nil {
+		return fmt.Errorf("failed to create public key from private key file %s", privateKeyFile)
+	}
+
+	fmt.Printf("Success! Generated keys %s and %s\n", privateKeyFile, publicKeyFile)
+	return nil
 }
