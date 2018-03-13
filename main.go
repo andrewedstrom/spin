@@ -14,7 +14,7 @@
 
 package main
 
-import "github.com/andrewedstrom/spin2/cmd"
+import "github.com/andrewedstrom/spin/cmd"
 
 func main() {
 	cmd.Execute()
