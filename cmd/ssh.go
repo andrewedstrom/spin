@@ -26,8 +26,8 @@ var email string
 
 // sshCmd represents the ssh command
 var sshCmd = &cobra.Command{
-	Short: "Generate ssh keys",
-	Long:  "Generate ssh keys",
+	Short: "Generate ssh key pair",
+	Long:  "Generate ssh key pair",
 	Use:   "ssh <new-keyfile-name>",
 	RunE:  ssh,
 }
